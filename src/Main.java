@@ -13,9 +13,9 @@ public class Main {
         NikiList sublist = new NikiList(0);
         sublist.add(3);
         sublist.add(4);
-        System.out.println(testList.containsSublist(sublist));
-        System.out.println(sublist.containsAll(sublist));
-        System.out.println(sublist.containsAll(testList));
+        System.out.println(testList.size());
+        System.out.println(testList.remove(4));
+        System.out.println(testList.size());
 
         System.out.println(testList.get(0));
     }

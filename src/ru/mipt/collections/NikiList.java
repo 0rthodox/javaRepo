@@ -60,16 +60,17 @@ public class NikiList implements CustomList {
 
     @Override
     public boolean remove(Object element) {
+        boolean result = false;
         int foundIndex = find(element);
-        if (foundIndex != size) {
+        while (foundIndex != size) {
             if (foundIndex + 1 != size) {
             System.arraycopy(data, foundIndex + 1, data, foundIndex, size - foundIndex - 1);
             }
             size--;
-            return true;
-        } else {
-            return false;
+            result = true;
+            foundIndex = find(element);
         }
+        return result;
     }
 
     public int find(Object element) {
