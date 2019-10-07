@@ -2,15 +2,19 @@ package ru.mipt.collections;
 
 public class NikiList implements CustomList {
 
-    private static int INITIAL_CAP = 19;
+    private static int INITIAL_CAP = 7;
     private static int TIMES_OF_ENLARGEMENT = 2;
     private int size;
     private int capacity;
     private Object[] data;
 
     public NikiList(int capacity) {
-        this.capacity = capacity;
-        data = new Object[capacity];
+        if (capacity <= 0) {
+            this.capacity = 1;
+        } else {
+            this.capacity = capacity;
+        }
+        data = new Object[this.capacity];
         size = 0;
     }
 
@@ -59,7 +63,7 @@ public class NikiList implements CustomList {
         int foundIndex = find(element);
         if (foundIndex != size) {
             if (foundIndex + 1 != size) {
-            System.arraycopy(data, foundIndex + 1, data, foundIndex, size - foundIndex);
+            System.arraycopy(data, foundIndex + 1, data, foundIndex, size - foundIndex - 1);
             }
             size--;
             return true;
@@ -91,7 +95,7 @@ public class NikiList implements CustomList {
         if (size - foundFirstsIndex < anotherCustomList.size() ) {
             return false;
         } else {
-            for (int i = 0; i < size - foundFirstsIndex; ++i) {
+            for (int i = 0; i < anotherCustomList.size(); ++i) {
                 if (data[i + foundFirstsIndex] != anotherCustomList.get(i)) {
                     return false;
                 }
