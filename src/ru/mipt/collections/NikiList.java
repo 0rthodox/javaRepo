@@ -2,8 +2,8 @@ package ru.mipt.collections;
 
 public class NikiList implements CustomList {
 
-    private static int INITIAL_CAP = 7;
-    private static int TIMES_OF_ENLARGEMENT = 2;
+    private static final int INITIAL_CAPACITY = 7;
+    private static final int TIMES_OF_ENLARGEMENT = 2;
     private int size;
     private int capacity;
     private Object[] data;
@@ -19,7 +19,7 @@ public class NikiList implements CustomList {
     }
 
     public NikiList() {
-        this(INITIAL_CAP);
+        this(INITIAL_CAPACITY);
     }
 
     @Override
@@ -29,13 +29,13 @@ public class NikiList implements CustomList {
 
     @Override
     public boolean isEmpty() {
-        return (size == 0);
+        return size == 0;
     }
 
     @Override
     public boolean contains(Object element) {
         for (Object currentElement : data) {
-            if (currentElement == element) {
+            if (currentElement.equals(element)) {
                 return true;
             }
         }
@@ -64,7 +64,7 @@ public class NikiList implements CustomList {
         int foundIndex = find(element);
         while (foundIndex != size) {
             if (foundIndex + 1 != size) {
-            System.arraycopy(data, foundIndex + 1, data, foundIndex, size - foundIndex - 1);
+                System.arraycopy(data, foundIndex + 1, data, foundIndex, size - foundIndex - 1);
             }
             size--;
             result = true;
@@ -75,7 +75,7 @@ public class NikiList implements CustomList {
 
     public int find(Object element) {
         for (int i = 0; i < size; ++i) {
-            if (element == data[i]) {
+            if (element.equals(data[i])) {
                 return i;
             }
         }
@@ -92,17 +92,26 @@ public class NikiList implements CustomList {
         if (anotherCustomList.isEmpty()) {
             return true;
         }
-        int foundFirstsIndex = find(anotherCustomList.get(0));
-        if (size - foundFirstsIndex < anotherCustomList.size() ) {
-            return false;
-        } else {
-            for (int i = 0; i < anotherCustomList.size(); ++i) {
-                if (data[i + foundFirstsIndex] != anotherCustomList.get(i)) {
-                    return false;
+        for (int i = 0; i < size; ++i) {
+            if (data[i].equals(anotherCustomList.get(0))) { // checking first element
+                if (checkSublistOnce(anotherCustomList, i)) { // checking next size(sublist) elements
+                    return true;
                 }
             }
-            return true;
         }
+        return false;
+    }
+
+    private boolean checkSublistOnce(CustomList anotherCustomList, int foundFirstsIndex) {
+        if (size - foundFirstsIndex < anotherCustomList.size()) {
+            return false;
+        }
+        for (int i = 0; i < anotherCustomList.size(); ++i) {
+            if (!data[i + foundFirstsIndex].equals(anotherCustomList.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
