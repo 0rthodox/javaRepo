@@ -44,6 +44,9 @@ public class NikiList implements CustomList {
 
     @Override
     public boolean add(Object element) {
+        if (element == null) {
+            throw new java.lang.IllegalArgumentException("Please do not add null to me");
+        }
         if (size == capacity) {
             enlarge();
         }
