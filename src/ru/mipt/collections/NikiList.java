@@ -100,7 +100,7 @@ public class NikiList implements CustomList {
         }
         for (int i = 0; i < size; ++i) {
             if (data[i].equals(anotherCustomList.get(0))) { // checking first element
-                if (checkSublistOnce(anotherCustomList, i)) { // checking next size(sublist) elements
+                if (checkEquity(anotherCustomList, i)) { // checking next size(sublist) elements
                     return true;
                 }
             }
@@ -108,7 +108,7 @@ public class NikiList implements CustomList {
         return false;
     }
 
-    private boolean checkSublistOnce(CustomList anotherCustomList, int foundFirstsIndex) {
+    private boolean checkEquity(CustomList anotherCustomList, int foundFirstsIndex) {
         if (size - foundFirstsIndex < anotherCustomList.size()) {
             return false;
         }
@@ -123,7 +123,8 @@ public class NikiList implements CustomList {
     @Override
     public Object get(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Wrong index");
+            //throw new IndexOutOfBoundsException("Wrong index");
+            return null;
         }
         return data[index];
     }

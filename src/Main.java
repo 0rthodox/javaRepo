@@ -9,10 +9,12 @@ public class Main {
         n.add(1);
         n.add(2);
         n.add(3);
-        System.out.println((n.get(0)));
-        System.out.println((n.get(1)));
-        System.out.println((n.get(2)));
-        System.out.println((n.get(3)));
-        System.out.println((n.get(4)));
+        n.add(3);
+        CustomList m = new NikiLinkedList();
+        /*m.add(1);
+        m.add(2);
+        m.add(3);
+        m.add(3);*/
+        System.out.println(n.containsSublist(m));
     }
 }

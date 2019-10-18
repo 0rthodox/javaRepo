@@ -97,12 +97,32 @@ public class NikiLinkedList implements CustomList{
 
     @Override
     public boolean containsAll(CustomList anotherCustomList) {
-        return false;
+        return (anotherCustomList.size() == size && containsSublist(anotherCustomList));
     }
 
     @Override
     public boolean containsSublist(CustomList anotherCustomList) {
+        if (anotherCustomList.isEmpty())
+            return true;
+        CustomList foundStartingPoints = find(anotherCustomList.get(0));
+        for (int i = 0; i < foundStartingPoints.size(); ++i) {
+            if (checkEquity(anotherCustomList, (NikiNode)foundStartingPoints.get(i))) {
+                return true;
+            } //checking equity starting from each starting point
+        }
         return false;
+    }
+
+    private boolean checkEquity(CustomList anotherCustomList, NikiNode currentNode) {
+        if (size < anotherCustomList.size())
+            return false;
+        for (int i = 0; i < anotherCustomList.size(); ++i) {
+            if (!currentNode.value.equals(anotherCustomList.get(i))) {
+                return false;
+            }
+            currentNode = currentNode.next;
+        }
+        return true;
     }
 
     @Override
