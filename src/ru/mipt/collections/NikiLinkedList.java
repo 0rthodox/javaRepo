@@ -1,15 +1,17 @@
 package ru.mipt.collections;
 
+import java.util.Objects;
+
 public class NikiLinkedList implements CustomList{
-    private NikiNode top;
+    private NikiNode firstNode;
     private int size;
 
     public NikiLinkedList() {
         size = 0;
-        top = null;
+        firstNode = null;
     }
 
-    public class NikiNode {
+    class NikiNode {
         NikiNode prev;
         NikiNode next;
         Object value;
@@ -31,18 +33,18 @@ public class NikiLinkedList implements CustomList{
 
     @Override
     public boolean contains(Object element) {
-        return find(element) != null;
+        return findNodes(element) != null;
     }
 
-    private CustomList find(Object element) {
+    private CustomList findNodes(Object element) {
         if (element != null) {
             CustomList foundNodes = new NikiList(0);
-            NikiNode currNode = top;
-            do {
-                if (currNode.value.equals(element))
+            NikiNode currNode = firstNode;
+            while (currNode != null) {
+                if (Objects.equals(currNode.value, element))
                     foundNodes.add(currNode);
                 currNode = currNode.next;
-            } while (currNode != top);
+            }
             return foundNodes;
         }
         return null;
@@ -51,47 +53,45 @@ public class NikiLinkedList implements CustomList{
     @Override
     public boolean add(Object element) {
         if (element == null) {
-            return false;
-            //throw new IllegalArgumentException("Please do not add null to me");
+            throw new IllegalArgumentException("Attempt to add null, interrupting..");
         }
         NikiNode elementWrapper = new NikiNode(element);
-        if (top != null) {
-            elementWrapper.next = top;
-            elementWrapper.prev = top.prev;
-            top.prev.next = elementWrapper;
-            top.prev = elementWrapper;
-        } else {
-            elementWrapper.prev = elementWrapper;
-            elementWrapper.next = elementWrapper;
-            top = elementWrapper;
+        if (firstNode != null) {
+            elementWrapper.next = firstNode;
+            elementWrapper.prev = null;
+            firstNode.prev = elementWrapper;
         }
+        firstNode = elementWrapper;
         size++;
         return true;
-
     }
 
     @Override
     public boolean remove(Object element) {
-        NikiNode currNode = top;
+        if (element == null) {
+            throw new IllegalArgumentException("Attempt to remove null, interrupting..");
+        }
+        NikiNode currNode = firstNode;
         int old_size = size;
-        do {
-            if (element.equals(currNode.value)) {
+        while (currNode != null) {
+            if (Objects.equals(currNode.value, element)) {
                 currNode = removeNode(currNode);
                 size--;
             } else {
                 currNode = currNode.next;
             }
-        } while (currNode != top);
+        }
         return old_size != size;
     }
 
     private NikiNode removeNode(NikiNode currNode) {
         if (size == 1) {
             currNode = null;
-            return currNode;
+            return null;
         }
             currNode.prev.next = currNode.next;
             currNode.next.prev = currNode.prev;
+            --size;
         return currNode.next;
     }
 
@@ -104,7 +104,7 @@ public class NikiLinkedList implements CustomList{
     public boolean containsSublist(CustomList anotherCustomList) {
         if (anotherCustomList.isEmpty())
             return true;
-        CustomList foundStartingPoints = find(anotherCustomList.get(0));
+        CustomList foundStartingPoints = findNodes(anotherCustomList.get(0));
         for (int i = 0; i < foundStartingPoints.size(); ++i) {
             if (checkEquity(anotherCustomList, (NikiNode)foundStartingPoints.get(i))) {
                 return true;
@@ -117,7 +117,7 @@ public class NikiLinkedList implements CustomList{
         if (size < anotherCustomList.size())
             return false;
         for (int i = 0; i < anotherCustomList.size(); ++i) {
-            if (!currentNode.value.equals(anotherCustomList.get(i))) {
+            if (!Objects.equals(currentNode.value, anotherCustomList.get(i))) {
                 return false;
             }
             currentNode = currentNode.next;
@@ -127,10 +127,13 @@ public class NikiLinkedList implements CustomList{
 
     @Override
     public Object get(int index) {
-        if (top == null) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Wrong index");
+        }
+        if (firstNode == null) {
             return null;
         }
-        NikiNode currNode = top;
+        NikiNode currNode = firstNode;
         for(int i = 0; i < index; ++i) {
             currNode = currNode.next;
         }
