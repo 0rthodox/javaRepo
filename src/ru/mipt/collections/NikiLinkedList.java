@@ -101,32 +101,40 @@ public class NikiLinkedList implements CustomList{
     }
 
     @Override
-    public boolean containsSublist(CustomList anotherCustomList) {
+    public boolean containsSublist(CustomList anotherCustomList) throws RuntimeException {
         if (anotherCustomList.isEmpty())
             return true;
         CustomList foundStartingPoints = findNodes(anotherCustomList.get(0));
         for (int i = 0; i < foundStartingPoints.size(); ++i) {
-            if (checkEquity(anotherCustomList, (NikiNode)foundStartingPoints.get(i))) {
-                return true;
-            } //checking equity starting from each starting point
+            try {
+                if (checkEquity(anotherCustomList, (NikiNode) foundStartingPoints.get(i))) {
+                    return true;
+                } //checking equity starting from each starting point
+            } catch (IllegalArgumentException ex) {
+                throw new RuntimeException("Something is wrong with the nodes");
+            };
         }
         return false;
     }
 
-    private boolean checkEquity(CustomList anotherCustomList, NikiNode currentNode) {
+    private boolean checkEquity(CustomList anotherCustomList, NikiNode currentNode) throws IllegalArgumentException {
         if (size < anotherCustomList.size())
             return false;
-        for (int i = 0; i < anotherCustomList.size(); ++i) {
-            if (!Objects.equals(currentNode.value, anotherCustomList.get(i))) {
-                return false;
+        try {
+            for (int i = 0; i < anotherCustomList.size(); ++i) {
+                if (!Objects.equals(currentNode.value, anotherCustomList.get(i))) {
+                    return false;
+                }
+                currentNode = currentNode.next;
             }
-            currentNode = currentNode.next;
-        }
+        } catch (NullPointerException npException) {
+            throw new IllegalArgumentException("Null node is somewhere");
+        };
         return true;
     }
 
     @Override
-    public Object get(int index) {
+    public Object get(int index) throws IndexOutOfBoundsException {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Wrong index");
         }
