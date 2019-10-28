@@ -1,13 +1,12 @@
 package ru.mipt.collections;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
 
 public class FileUtils {
-    public List<String> readAll(String path) throws RuntimeException {
+    public static List<String> readAll(String path) throws RuntimeException {
         FileReader sourceFile;
         try {
             sourceFile = new FileReader(path);
@@ -25,12 +24,12 @@ public class FileUtils {
         return readLines;
     }
     /* читаем все строки из файла по пути path и возвращаем этот список */
-    public void writeAll(String path, List<String> lines) throws RuntimeException {
+    public static void writeAll(String path, List<String> lines) throws RuntimeException {
         File toWrite;
         FileWriter ostream;
         try {
             toWrite = new File(path);
-            ostream = new FileWriter(toWrite, true);
+            ostream = new FileWriter(toWrite, false);
         } catch (NullPointerException nullPath) {
             throw new RuntimeException("Path is null");
         } catch (IOException thrownByWriter) {
@@ -51,14 +50,17 @@ public class FileUtils {
 
     }
     /*пишем все строки из lines в файла по пути path */
-    public void copy(String sourceFile, String destinationFile) throws RuntimeException {
+    public static void copy(String sourceFile, String destinationFile) throws RuntimeException {
         try {
             FileReader toRead = new FileReader(sourceFile);
-            FileWriter toWrite = new FileWriter(destinationFile, true);
+            FileWriter toWrite = new FileWriter(destinationFile, false);
             Scanner readFrom = new Scanner(toRead);
             while (readFrom.hasNextLine()) {
-                toWrite.write(readFrom.nextLine());
+                toWrite.write(readFrom.nextLine() + "\n");
             }
+            readFrom.close();
+            toWrite.close();
+            toRead.close();
         } catch (FileNotFoundException thrownByReader) {
             throw new RuntimeException("Something is wrong with the source file: " + thrownByReader.getMessage());
         } catch (IOException thrownByWriter) {
@@ -66,7 +68,7 @@ public class FileUtils {
         }
     }
     /*копируем файл по пути sourceFile в destinationFile*/
-    public void delete(String path) {
+    public static void delete(String path) throws RuntimeException {
         File toDelete;
         try {
             toDelete = new File(path);
