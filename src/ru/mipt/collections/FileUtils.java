@@ -8,14 +8,14 @@ import java.util.Vector;
 import static java.lang.System.lineSeparator;
 
 public class FileUtils {
-    public static List<String> readAll(String path) throws FileNotFoundException {
+    public static List<String> readAll(String path) {
         List<String> readLines = new Vector<String>();
         try (Scanner istream = new Scanner(new FileReader(path))){
             while (istream.hasNextLine()) {
                 readLines.add(istream.nextLine());
             }
         } catch (FileNotFoundException noFile) {
-            throw noFile;
+            System.out.println("Exception happened: file " + path + " not found");
         }
         return readLines;
     }
@@ -32,20 +32,14 @@ public class FileUtils {
             }
             ostream.flush();
         } catch (IOException writingException) {
-            throw new UncheckedIOException("Something went wrong when writing: " + writingException.getMessage());
+            throw new UncheckedIOException(writingException);
         }
         return true;
 
     }
     /*пишем все строки из lines в файла по пути path */
     public static boolean copy(String sourceFile, String destinationFile) {
-        try {
-            writeAll(destinationFile, readAll(sourceFile));
-        } catch (FileNotFoundException noFile) {
-            System.out.println("Exception happened: " + noFile.getMessage());
-            return false;
-        }
-        return true;
+        return writeAll(destinationFile, readAll(sourceFile));
     }
     /*копируем файл по пути sourceFile в destinationFile*/
     public static boolean delete(String path) {
