@@ -69,7 +69,7 @@ public class NikiLinkedList implements CustomList{
     @Override
     public boolean remove(Object element) {
         if (element == null) {
-            throw new IllegalArgumentException("Attempt to remove null, interrupting..");
+            return false;
         }
         NikiNode currNode = firstNode;
         int old_size = size;
@@ -106,18 +106,15 @@ public class NikiLinkedList implements CustomList{
             return true;
         CustomList foundStartingPoints = findNodes(anotherCustomList.get(0));
         for (int i = 0; i < foundStartingPoints.size(); ++i) {
-            try {
-                if (checkEquity(anotherCustomList, (NikiNode) foundStartingPoints.get(i))) {
-                    return true;
-                } //checking equity starting from each starting point
-            } catch (IllegalArgumentException ex) {
-                throw new RuntimeException("Something is wrong with the nodes");
-            };
+            if (checkEquity(anotherCustomList, (NikiNode) foundStartingPoints.get(i))) {
+                return true;
+            } //checking equity starting from each starting point
+
         }
         return false;
     }
 
-    private boolean checkEquity(CustomList anotherCustomList, NikiNode currentNode) throws IllegalArgumentException {
+    private boolean checkEquity(CustomList anotherCustomList, NikiNode currentNode) {
         if (size < anotherCustomList.size())
             return false;
         try {
@@ -128,13 +125,13 @@ public class NikiLinkedList implements CustomList{
                 currentNode = currentNode.next;
             }
         } catch (NullPointerException npException) {
-            throw new IllegalArgumentException("Null node is somewhere");
+            return false;
         };
         return true;
     }
 
     @Override
-    public Object get(int index) throws IndexOutOfBoundsException {
+    public Object get(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Wrong index");
         }
