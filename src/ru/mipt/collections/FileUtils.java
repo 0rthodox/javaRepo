@@ -20,7 +20,7 @@ public class FileUtils {
         return readLines;
     }
     /* читаем все строки из файла по пути path и возвращаем этот список */
-    public static boolean writeAll(String path, List<String> lines) throws UncheckedIOException {
+    public static boolean writeAll(String path, List<String> lines) {
         if (path == null) {
             System.out.println("Path is null");
             return false;
