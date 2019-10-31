@@ -5,79 +5,55 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
 
+import static java.lang.System.lineSeparator;
+
 public class FileUtils {
-    public static List<String> readAll(String path) throws RuntimeException {
-        FileReader sourceFile;
-        try {
-            sourceFile = new FileReader(path);
-        } catch (FileNotFoundException noFile) {
-            throw new RuntimeException("Invalid pathname");
-        } catch (Exception otherException) {
-            throw new RuntimeException("Something went wrong when trying to read from file");
-        }
-        Scanner istream = new Scanner(sourceFile);
+    public static List<String> readAll(String path) throws FileNotFoundException {
         List<String> readLines = new Vector<String>();
-        while (istream.hasNextLine()) {
-            readLines.add(istream.nextLine());
+        try (Scanner istream = new Scanner(new FileReader(path))){
+            while (istream.hasNextLine()) {
+                readLines.add(istream.nextLine());
+            }
+        } catch (FileNotFoundException noFile) {
+            throw noFile;
         }
-        istream.close();
         return readLines;
     }
     /* читаем все строки из файла по пути path и возвращаем этот список */
-    public static void writeAll(String path, List<String> lines) throws RuntimeException {
-        File toWrite;
-        FileWriter ostream;
-        try {
-            toWrite = new File(path);
-            ostream = new FileWriter(toWrite, false);
-        } catch (NullPointerException nullPath) {
-            throw new RuntimeException("Path is null");
-        } catch (IOException thrownByWriter) {
-             throw new RuntimeException("Unable to link writer: " + thrownByWriter.getMessage());
-        } catch (Exception otherException) {
-            throw new RuntimeException("Something went wrong when initializing");
+    public static boolean writeAll(String path, List<String> lines) throws UncheckedIOException {
+        if (path == null) {
+            System.out.println("Path is null");
+            return false;
         }
-        try {
+        try(FileWriter ostream = new FileWriter(path, false)) {
             for (String line : lines) {
                 ostream.write(line);
-                ostream.append('\n');
+                ostream.append(lineSeparator());
             }
             ostream.flush();
-            ostream.close();
         } catch (IOException writingException) {
-            throw new RuntimeException("Something went wrong when writing: " + writingException.getMessage());
+            throw new UncheckedIOException("Something went wrong when writing: " + writingException.getMessage());
         }
+        return true;
 
     }
     /*пишем все строки из lines в файла по пути path */
-    public static void copy(String sourceFile, String destinationFile) throws RuntimeException {
+    public static boolean copy(String sourceFile, String destinationFile) {
         try {
-            FileReader toRead = new FileReader(sourceFile);
-            FileWriter toWrite = new FileWriter(destinationFile, false);
-            Scanner readFrom = new Scanner(toRead);
-            while (readFrom.hasNextLine()) {
-                toWrite.write(readFrom.nextLine() + "\n");
-            }
-            readFrom.close();
-            toWrite.close();
-            toRead.close();
-        } catch (FileNotFoundException thrownByReader) {
-            throw new RuntimeException("Something is wrong with the source file: " + thrownByReader.getMessage());
-        } catch (IOException thrownByWriter) {
-            throw new RuntimeException("Something is wrong with the destination file: " + thrownByWriter.getMessage());
+            writeAll(destinationFile, readAll(sourceFile));
+        } catch (FileNotFoundException noFile) {
+            System.out.println("Exception happened: " + noFile.getMessage());
+            return false;
         }
+        return true;
     }
     /*копируем файл по пути sourceFile в destinationFile*/
-    public static void delete(String path) throws RuntimeException {
-        File toDelete;
-        try {
-            toDelete = new File(path);
-        } catch (NullPointerException thrownByConstructor) {
-            throw new RuntimeException("Path is null: unable to open the file");
+    public static boolean delete(String path) {
+        if (path == null) {
+            return false;
         }
-        if (!toDelete.delete()) {
-            throw new RuntimeException("Unable to delete the file");
-        }
+        File toDelete = new File(path);
+        return (toDelete.delete());
     }
     /*удаляем файл по пути path*/
 
