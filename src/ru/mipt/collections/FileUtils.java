@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import static java.lang.System.lineSeparator;
+import static java.lang.System.setOut;
 
 public class FileUtils {
     public static List<String> readAll(String path) {
@@ -16,6 +17,9 @@ public class FileUtils {
             }
         } catch (FileNotFoundException noFile) {
             System.out.println("Exception happened: file " + path + " not found");
+        } catch (Exception otherException) {
+            System.out.println("Exception happened: " + otherException.getMessage());
+            System.out.println(readLines.size() + " lines read successfully up to this moment");
         }
         return readLines;
     }
@@ -32,7 +36,8 @@ public class FileUtils {
             }
             ostream.flush();
         } catch (IOException writingException) {
-            throw new UncheckedIOException(writingException);
+            System.out.println("Exception happened: " + writingException.getMessage());
+            return false;
         }
         return true;
 
