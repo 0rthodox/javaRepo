@@ -4,6 +4,7 @@ import ru.mipt.collections.NikiLinkedList;
 import ru.mipt.collections.NikiList;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Vector;
 
@@ -15,9 +16,18 @@ public class Main {
         l.add("A");
         l.add("Time");
         FileUtils.writeAll("output.txt", l);
-        List<String> newL = new Vector<String>(FileUtils.readAll("output.txt"));
+        List<String> newL = null;
+        try {
+            newL = new Vector<String>(FileUtils.readAll("output.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         FileUtils.writeAll("output2.txt", newL);
-        FileUtils.copy("output.txt", "output3.txt");
+        try {
+            FileUtils.copy("output.txt", "output3.txt");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         FileUtils.delete("output.txt");
         System.out.println("Should work for now..");
     }

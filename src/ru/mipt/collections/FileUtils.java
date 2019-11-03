@@ -9,14 +9,14 @@ import static java.lang.System.lineSeparator;
 import static java.lang.System.setOut;
 
 public class FileUtils {
-    public static List<String> readAll(String path) {
+    public static List<String> readAll(String path) throws FileNotFoundException {
         List<String> readLines = new Vector<String>();
         try (Scanner istream = new Scanner(new FileReader(path))){
             while (istream.hasNextLine()) {
                 readLines.add(istream.nextLine());
             }
         } catch (FileNotFoundException noFile) {
-            throw new FileNotFoundException("At FileUtils.readAll while reading " + path + ": " + noFile.getMessage())
+            throw new FileNotFoundException("At FileUtils.readAll while reading " + path + ": " + noFile.getMessage());
         }
         return readLines;
     }
@@ -40,8 +40,12 @@ public class FileUtils {
 
     }
     /*пишем все строки из lines в файла по пути path */
-    public static boolean copy(String sourceFile, String destinationFile) {
-        return writeAll(destinationFile, readAll(sourceFile));
+    public static boolean copy(String sourceFile, String destinationFile) throws FileNotFoundException {
+        try {
+            return writeAll(destinationFile, readAll(sourceFile));
+        } catch (FileNotFoundException noFile) {
+            throw new FileNotFoundException("At FileUtils.copy while reading " + sourceFile + ": " + noFile.getMessage());
+        }
     }
     /*копируем файл по пути sourceFile в destinationFile*/
     public static boolean delete(String path) {
