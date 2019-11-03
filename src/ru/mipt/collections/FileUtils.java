@@ -16,10 +16,7 @@ public class FileUtils {
                 readLines.add(istream.nextLine());
             }
         } catch (FileNotFoundException noFile) {
-            System.out.println("Exception happened: file " + path + " not found");
-        } catch (Exception otherException) {
-            System.out.println("Exception happened: " + otherException.getMessage());
-            System.out.println(readLines.size() + " lines read successfully up to this moment");
+            throw new FileNotFoundException("At FileUtils.readAll while reading " + path + ": " + noFile.getMessage())
         }
         return readLines;
     }
