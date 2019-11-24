@@ -1,6 +1,7 @@
 package ru.mipt.collections;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
@@ -9,14 +10,16 @@ import static java.lang.System.lineSeparator;
 import static java.lang.System.setOut;
 
 public class FileUtils {
-    public static List<String> readAll(String path) throws FileNotFoundException {
-        List<String> readLines = new Vector<String>();
-        try (Scanner istream = new Scanner(new FileReader(path))){
-            while (istream.hasNextLine()) {
-                readLines.add(istream.nextLine());
+    public static List<String> readAll(String path) {
+        List<String> readLines = new ArrayList<>();
+        try (BufferedReader istream = new BufferedReader(new FileReader(path))){
+            while (istream.ready()) {
+                readLines.add(istream.readLine());
             }
         } catch (FileNotFoundException noFile) {
-            throw new FileNotFoundException("At FileUtils.readAll while reading " + path + ": " + noFile.getMessage());
+            throw new IllegalArgumentException("At FileUtils.readAll while reading " + path + ": " + noFile.getMessage());
+        } catch (IOException ioEx) {
+            throw new UncheckedIOException("At FileUtils.readAll while reading " + path + ": ", ioEx);
         }
         return readLines;
     }
@@ -40,12 +43,8 @@ public class FileUtils {
 
     }
     /*пишем все строки из lines в файла по пути path */
-    public static boolean copy(String sourceFile, String destinationFile) throws FileNotFoundException {
-        try {
-            return writeAll(destinationFile, readAll(sourceFile));
-        } catch (FileNotFoundException noFile) {
-            throw new FileNotFoundException("At FileUtils.copy while reading " + sourceFile + ": " + noFile.getMessage());
-        }
+    public static boolean copy(String sourceFile, String destinationFile) {
+        return writeAll(destinationFile, readAll(sourceFile));
     }
     /*копируем файл по пути sourceFile в destinationFile*/
     public static boolean delete(String path) {

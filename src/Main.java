@@ -2,6 +2,7 @@ import ru.mipt.collections.CustomList;
 import ru.mipt.collections.FileUtils;
 import ru.mipt.collections.NikiLinkedList;
 import ru.mipt.collections.NikiList;
+import ru.mipt.iterators.FileIterator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,18 +18,15 @@ public class Main {
         l.add("Time");
         FileUtils.writeAll("output.txt", l);
         List<String> newL = null;
-        try {
-            newL = new Vector<String>(FileUtils.readAll("output.txt"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        newL = new Vector<String>(FileUtils.readAll("output.txt"));
         FileUtils.writeAll("output2.txt", newL);
-        try {
-            FileUtils.copy("output.txt", "output3.txt");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        FileUtils.copy("output.txt", "output3.txt");
         FileUtils.delete("output.txt");
         System.out.println("Should work for now..");
+        FileIterator iterator = new FileIterator("output3.txt");
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+        iterator.close();
     }
 }
