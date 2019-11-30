@@ -3,11 +3,8 @@ package ru.mipt.collections;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Vector;
 
 import static java.lang.System.lineSeparator;
-import static java.lang.System.setOut;
 
 public class FileUtils {
     public static List<String> readAll(String path) {
