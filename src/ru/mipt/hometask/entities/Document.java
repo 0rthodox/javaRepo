@@ -1,6 +1,6 @@
 package ru.mipt.hometask.entities;
 
-public class Document{
+public class Document {
     private static int currentId;
 
     protected int id;

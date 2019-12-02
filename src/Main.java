@@ -1,4 +1,3 @@
-
 import ru.mipt.hometask.Database;
 import ru.mipt.hometask.EntityParser;
 import ru.mipt.hometask.entities.Book;
