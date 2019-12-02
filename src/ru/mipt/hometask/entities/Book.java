@@ -2,7 +2,7 @@ package ru.mipt.hometask.entities;
 
 import java.util.Date;
 
-public class Book {
+public class Book{
     private static int currentId;
 
     protected int id;

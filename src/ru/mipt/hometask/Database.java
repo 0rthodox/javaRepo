@@ -1,10 +1,7 @@
 package ru.mipt.hometask;
 
-import ru.mipt.hometask.entities.Person;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,20 +9,22 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
-public final class Database<T> {
-    protected final Path path;
-    protected final EntityParser<T> parser;
+public final class Database<T> { // changed some access parameters, removed 'path' argument in methods
+    private final Path path;     //since this string exists
+    private final EntityParser<T> parser;
+    private final EntityCache<T> cache = new EntityCache<>();
 
     public Database(Path databasepath, EntityParser<T> parser) {
         path = databasepath;
         this.parser = parser;
-        assertDBExist(path);
+        assertDBExist();
     }
 
-    private void assertDBExist(Path path) { //moved from File to Path/Files logic
+    private void assertDBExist() { //moved from File to Path/Files logic
         if (!Files.exists(path)) {
             try {
                 Files.createFile(path);
@@ -35,35 +34,12 @@ public final class Database<T> {
         }
     }
 
-    protected List<T> readAll(Path path) {
-        //todo здесь надо придумать логику того, содержится ли объект, который вы хотите получить в кэше(EntityCache)
-        // и если содержится, то вытащить его из кэша, а не из файла
-        /*File file = path.toFile();
-        LinkedList<T> entities = new LinkedList<>();
-        FileReader reader;
-        BufferedReader bufferedReader;
-        try {
-            reader = new FileReader(file);
-            bufferedReader = new BufferedReader(reader);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot read file", e);
-        }
-        while (bufferedReader.read() != -1) {
-            String[] lines = new String[parser.getNumOfFields()];
-            for (int i = 0; i < lines.length; i++) {
-                lines[i] = bufferedReader.readLine();
-            }
-            entities.add(parser.read(lines));
-        }
-        return entities;*/
+    public List<T> readAll() { // moved to TWR
         List<T> entities = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
            while (reader.ready()) {
-               List<String> lines = new ArrayList<>(parser.getNumOfFields());
-               for(int i = 0; i < parser.getNumOfFields(); ++i) {
-                   lines.add(reader.readLine());
-               }
-               entities.add(parser.read(lines));
+               List<String> unparsedEntity = parser.read(reader);
+               entities.add(parser.parse(unparsedEntity));
            }
         } catch (IOException ioEx) {
             throw new UncheckedIOException(ioEx);
@@ -71,26 +47,10 @@ public final class Database<T> {
         return entities;
     }
 
-    protected void writeData(List<T> entities) {
-        /*File file = path.toFile();
-        FileWriter writer;
-        BufferedWriter bufferedWriter;
-        try {
-            writer = new FileWriter(file);
-            bufferedWriter = new BufferedWriter(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot read file", e);
+    public void writeData(List<T> entities) { // Added null assertion, moved to TWR
+        if (entities == null) {
+            throw new IllegalArgumentException("Given list is null");
         }
-        try {
-            for (Person person : persons) {
-                //todo здесь запись должна осуществляться с помощью parser.write(Writer writer)
-                bufferedWriter.write(person.getId());
-                bufferedWriter.write(person.getName());
-                bufferedWriter.write(person.getSurname());
-            }
-        } catch (IOException | NullPointerException e) {
-            throw new RuntimeException("Something went wrong");
-        }*/
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile()))) {
             for (T entity : entities) {
                 parser.write(writer, entity);
@@ -100,30 +60,48 @@ public final class Database<T> {
         }
     }
 
-    protected Person getEntityById(int id, Path path) throws IOException {
-        File file = path.toFile();
-        FileReader reader;
-        BufferedReader bufferedReader;
-        try {
-            reader = new FileReader(file);
-            bufferedReader = new BufferedReader(reader);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot read file", e);
+    public T getEntityById(int id) {// moved to TWR, added NSEE if there is no entity with such id
+        if (cache.contains(id)) {
+            return cache.getFromCache(id);
         }
-        while (bufferedReader.read() != -1) {
-            Integer currId = Integer.parseInt(bufferedReader.readLine());
-            if (currId == id) {
-                return new Person(id, bufferedReader.readLine(), bufferedReader.readLine());
+        try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
+            while (reader.ready()) {
+                List<String> unparsedEntity = parser.read(reader);
+                if (id == Integer.parseInt(unparsedEntity.get(0))) {
+                    T parsedEntity = parser.parse(unparsedEntity);
+                    cache.putInCache(parser.getId(parsedEntity), parsedEntity);
+                    return parsedEntity;
+                }
             }
+            throw new NoSuchElementException("Haven't found entity with id " + id);
+        } catch (IOException ioEx) {
+            throw new UncheckedIOException(ioEx);
         }
-        return new Person(id, "empty", "empty");
     }
 
-    protected void deleteEntityById(int id, Path path) {
-        //todo реализовать этот метод
+    public void deleteEntityById(int id) {//moved to TWR
+        List<T> entities = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
+            while (reader.ready()) {
+                List<String> unparsedEntity = parser.read(reader);
+                if (!Objects.equals(id, Integer.parseInt(unparsedEntity.get(0)))) {
+                    entities.add(parser.parse(unparsedEntity));
+                }
+            }
+        } catch (IOException ioEx) {
+            throw new UncheckedIOException(ioEx);
+        }
+        clearDatabase();
+        writeData(entities);
     }
 
-    protected void clearDatabase() {
-        //todo реализовать этот метод
+    public void clearDatabase() {
+        try {
+            Files.delete(path);
+        } catch (IOException ioEx) {
+            throw new UncheckedIOException(ioEx);
+        }
+        cache.clear();
+        assertDBExist();
     }
 }

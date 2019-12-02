@@ -20,7 +20,17 @@ public class BookParser extends AbstractParser<Book> {
     }
 
     @Override
-    public Book read(List<String> lines) {
+    public int getNumOfFields() {
+        return numOfFields;
+    }
+
+    @Override
+    public int getId(Book book) {
+        return book.getId();
+    }
+
+    @Override
+    public Book parse(List<String> lines) {
         return new Book(Integer.parseInt(lines.get(0)), lines.get(1), lines.get(2), Date.from(Instant.parse(lines.get(3))));
     }
 }
