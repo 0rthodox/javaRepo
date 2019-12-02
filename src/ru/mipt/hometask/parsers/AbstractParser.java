@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractParser<T> implements EntityParser<T> {
-    private static int numOfFields;
 
     abstract List<String> stringify(T entity);
 
